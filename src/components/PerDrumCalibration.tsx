@@ -1,9 +1,9 @@
-import { Box, LinearProgress, Typography, Button, Stack, IconButton } from '@mui/material';
+import { Box, LinearProgress, Typography, Stack, IconButton } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
-import type { DrumType } from './DrumVisualizer';
+import type { InstrumentType } from './InstrumentVisualizer';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 
-const drumLabels: Record<DrumType, string> = {
+const instrumentLabels: Record<InstrumentType, string> = {
   kick: 'Kick',
   snare: 'Snare',
   hihat: 'Hi-Hat',
@@ -11,16 +11,16 @@ const drumLabels: Record<DrumType, string> = {
   cymbal: 'Cymbal',
 };
 
-export interface PerDrumCalibrationProps {
-  drums: DrumType[];
-  noiseFloors: Record<DrumType, number>;
-  onCalibrate: (drum: DrumType, noiseLevel: number) => void;
+export interface PerInstrumentCalibrationProps {
+  instruments: InstrumentType[];
+  noiseFloors: Record<InstrumentType, number>;
+  onCalibrate: (instrument: InstrumentType, noiseLevel: number) => void;
 }
 
-export const PerDrumCalibration: React.FC<PerDrumCalibrationProps> = ({ drums, noiseFloors, onCalibrate }) => {
+export const PerInstrumentCalibration: React.FC<PerInstrumentCalibrationProps> = ({ instruments, noiseFloors, onCalibrate }) => {
   const [level, setLevel] = useState(0);
-  const [calibrating, setCalibrating] = useState<DrumType | null>(null);
-  const [calibrated, setCalibrated] = useState<Record<DrumType, number>>(noiseFloors);
+  const [calibrating, setCalibrating] = useState<InstrumentType | null>(null);
+  const [calibrated, setCalibrated] = useState<Record<InstrumentType, number>>(noiseFloors);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -65,8 +65,8 @@ export const PerDrumCalibration: React.FC<PerDrumCalibrationProps> = ({ drums, n
     };
   }, []);
 
-  const handleCalibrate = (drum: DrumType) => {
-    setCalibrating(drum);
+  const handleCalibrate = (instrument: InstrumentType) => {
+    setCalibrating(instrument);
     let samples: number[] = [];
     const sampleDuration = 1500;
     const start = Date.now();
@@ -76,9 +76,9 @@ export const PerDrumCalibration: React.FC<PerDrumCalibrationProps> = ({ drums, n
         requestAnimationFrame(sample);
       } else {
         const avg = samples.reduce((a, b) => a + b, 0) / samples.length;
-        setCalibrated((prev) => ({ ...prev, [drum]: avg }));
+        setCalibrated((prev) => ({ ...prev, [instrument]: avg }));
         setCalibrating(null);
-        onCalibrate(drum, avg);
+        onCalibrate(instrument, avg);
       }
     }
     sample();
@@ -87,30 +87,30 @@ export const PerDrumCalibration: React.FC<PerDrumCalibrationProps> = ({ drums, n
   return (
     <Box sx={{ mb: 2 }}>
       <Typography variant="subtitle2" gutterBottom>
-        Per-Drum Noise Floor Calibration
+        Per-Instrument Noise Floor Calibration
       </Typography>
       <Stack spacing={2}>
-        {drums.map((drum) => (
-          <Box key={drum} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        {instruments.map((instrument) => (
+          <Box key={instrument} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <MusicNoteIcon fontSize="small" />
-            <Typography sx={{ minWidth: 60 }}>{drumLabels[drum]}</Typography>
+            <Typography sx={{ minWidth: 60 }}>{instrumentLabels[instrument]}</Typography>
             <LinearProgress
               variant="determinate"
               value={Math.min(level * 100 * 2, 100)}
               sx={{ height: 8, borderRadius: 5, flex: 1, bgcolor: '#eee' }}
             />
             <Typography variant="caption" color="text.secondary" sx={{ minWidth: 80 }}>
-              {calibrating === drum
+              {calibrating === instrument
                 ? 'Calibrating...'
-                : calibrated[drum] !== undefined
-                ? `Noise: ${(calibrated[drum] * 100).toFixed(1)}`
+                : calibrated[instrument] !== undefined
+                ? `Noise: ${(calibrated[instrument] * 100).toFixed(1)}`
                 : 'Not set'}
             </Typography>
             <IconButton
               size="small"
-              onClick={() => handleCalibrate(drum)}
+              onClick={() => handleCalibrate(instrument)}
               disabled={calibrating !== null}
-              color={calibrating === drum ? 'primary' : 'default'}
+              color={calibrating === instrument ? 'primary' : 'default'}
             >
               <MusicNoteIcon />
             </IconButton>
@@ -120,3 +120,6 @@ export const PerDrumCalibration: React.FC<PerDrumCalibrationProps> = ({ drums, n
     </Box>
   );
 };
+
+// For compatibility with old imports
+export default PerInstrumentCalibration;

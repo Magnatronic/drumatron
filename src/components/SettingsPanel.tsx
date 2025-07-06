@@ -1,45 +1,40 @@
-import { Box, Typography, FormGroup, FormControlLabel, Switch, Slider, Select, MenuItem, InputLabel } from '@mui/material';
+
+import { Box, Typography, FormGroup, FormControlLabel, Switch, Slider } from '@mui/material';
 import React from 'react';
-import type { DrumType } from './DrumVisualizer';
+import type { InstrumentType } from './InstrumentVisualizer';
 
 export interface SettingsPanelProps {
-  activeDrums: DrumType[];
-  onToggleDrum: (drum: DrumType) => void;
+  activeInstruments: InstrumentType[];
+  onToggleInstrument: (instrument: InstrumentType) => void;
   sensitivity: number;
   onSensitivityChange: (value: number) => void;
 }
 
-const themes = [
-  { value: 'classic', label: 'Classic' },
-  { value: 'space', label: 'Space' },
-  { value: 'underwater', label: 'Underwater' },
-];
-
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
-  activeDrums,
-  onToggleDrum,
+  activeInstruments,
+  onToggleInstrument,
   sensitivity,
   onSensitivityChange,
 }) => {
-  const drums: DrumType[] = ['kick', 'snare', 'hihat', 'tom', 'cymbal'];
+  const instruments: InstrumentType[] = ['kick', 'snare', 'hihat', 'tom', 'cymbal'];
 
   return (
     <Box>
       <Typography variant="h6" gutterBottom>
-        Drum Detection Settings
+        Instrument Detection Settings
       </Typography>
       <FormGroup row sx={{ mb: 2 }}>
-        {drums.map((drum) => (
+        {instruments.map((instrument) => (
           <FormControlLabel
-            key={drum}
+            key={instrument}
             control={
               <Switch
-                checked={activeDrums.includes(drum)}
-                onChange={() => onToggleDrum(drum)}
+                checked={activeInstruments.includes(instrument)}
+                onChange={() => onToggleInstrument(instrument)}
                 color="primary"
               />
             }
-            label={drum.charAt(0).toUpperCase() + drum.slice(1)}
+            label={instrument.charAt(0).toUpperCase() + instrument.slice(1)}
           />
         ))}
       </FormGroup>

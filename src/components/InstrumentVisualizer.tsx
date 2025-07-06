@@ -19,7 +19,6 @@ const instrumentColors: Record<InstrumentType, string> = {
   cymbal: '#ffa000',
 };
 
-
 export const InstrumentVisualizer: React.FC<InstrumentVisualizerProps> = ({ activeInstruments, lastHit, theme, matchScores, fullScreen }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // Responsive sizing

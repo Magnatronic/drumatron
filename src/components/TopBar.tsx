@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Box, IconButton, Typography, Tooltip, Stack } from '@mui/material';
+import { AppBar, Toolbar, Box, IconButton, Tooltip, Stack } from '@mui/material';
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
 // Drum icons replaced with first letter avatars
 import Avatar from '@mui/material/Avatar';
@@ -8,11 +8,11 @@ import WavesIcon from '@mui/icons-material/Waves'; // Underwater theme
 import PaletteIcon from '@mui/icons-material/Palette'; // Classic theme
 import SettingsIcon from '@mui/icons-material/Settings';
 
-import type { DrumType } from './DrumVisualizer';
+import type { InstrumentType } from './InstrumentVisualizer';
 import DrumSettingsModal from './DrumSettingsModal';
 
 // Drum icon avatar generator for highlight effect (subtle blue highlight)
-const getDrumAvatar = (drum: DrumType, active: boolean) => (
+const getInstrumentAvatar = (instrument: InstrumentType, active: boolean) => (
   <Avatar
     sx={{
       bgcolor: active ? 'rgba(25, 118, 210, 0.20)' : 'rgba(255,255,255,0.10)', // #1976d2 at 20% opacity
@@ -25,9 +25,9 @@ const getDrumAvatar = (drum: DrumType, active: boolean) => (
       boxShadow: undefined,
       transition: 'all 0.2s',
     }}
-    aria-label={drum.charAt(0).toUpperCase()}
+    aria-label={instrument.charAt(0).toUpperCase()}
   >
-    {drum.charAt(0).toUpperCase()}
+    {instrument.charAt(0).toUpperCase()}
   </Avatar>
 );
 
@@ -37,7 +37,7 @@ const getThemeAvatar = (theme: string, active: boolean) => {
   let icon: React.ReactNode = null;
   const blue = '#1976d2';
   const white = '#fff';
-  const gray = '#232526';
+  // const gray = '#232526'; // Unused
   if (theme === 'space') icon = <StarsIcon fontSize="large" sx={{ color: white }} />;
   else if (theme === 'underwater') icon = <WavesIcon fontSize="large" sx={{ color: white }} />;
   else if (theme === 'classic') icon = <PaletteIcon fontSize="large" sx={{ color: white }} />;
@@ -64,7 +64,7 @@ const getThemeAvatar = (theme: string, active: boolean) => {
   );
 };
 
-export type DrumSettings = {
+export type InstrumentSettings = {
   enabled: boolean;
   spectrumTemplate?: number[]; // normalized average spectrum
   sensitivity: number; // similarity threshold (0.7–0.99)
@@ -72,43 +72,43 @@ export type DrumSettings = {
 };
 
 export interface TopBarProps {
-  activeDrums: DrumType[];
-  onToggleDrum: (drum: DrumType) => void;
+  activeInstruments: InstrumentType[];
+  onToggleInstrument: (instrument: InstrumentType) => void;
   theme: string;
   onThemeChange: (theme: string) => void;
   themes: string[];
   onSettings: () => void;
-  drumSettings?: Partial<Record<DrumType, DrumSettings>>;
-  onDrumSettingsChange?: (drum: DrumType, settings: DrumSettings) => void;
+  instrumentSettings?: Partial<Record<InstrumentType, InstrumentSettings>>;
+  onInstrumentSettingsChange?: (instrument: InstrumentType, settings: InstrumentSettings) => void;
 }
 
 
 export const TopBar: React.FC<TopBarProps> = ({
-  activeDrums,
-  onToggleDrum,
+  activeInstruments,
+  // onToggleInstrument, // Unused
   theme,
   onThemeChange,
   themes,
   onSettings,
-  drumSettings = {},
-  onDrumSettingsChange,
+  instrumentSettings = {},
+  onInstrumentSettingsChange,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedDrum, setSelectedDrum] = useState<DrumType | null>(null);
+  const [selectedInstrument, setSelectedInstrument] = useState<InstrumentType | null>(null);
 
-  const handleDrumIconClick = (drum: DrumType) => {
-    setSelectedDrum(drum);
+  const handleInstrumentIconClick = (instrument: InstrumentType) => {
+    setSelectedInstrument(instrument);
     setModalOpen(true);
   };
 
   const handleModalClose = () => {
     setModalOpen(false);
-    setSelectedDrum(null);
+    setSelectedInstrument(null);
   };
 
-  const handleModalSave = (settings: DrumSettings) => {
-    if (selectedDrum && onDrumSettingsChange) {
-      onDrumSettingsChange(selectedDrum, settings);
+  const handleModalSave = (settings: InstrumentSettings) => {
+    if (selectedInstrument && onInstrumentSettingsChange) {
+      onInstrumentSettingsChange(selectedInstrument, settings);
     }
     handleModalClose();
   };
@@ -128,7 +128,7 @@ export const TopBar: React.FC<TopBarProps> = ({
         }}
       >
         <MusicNoteIcon fontSize="large" sx={{ mr: { xs: 1, sm: 2 } }} />
-        {/* Drum icons with subtle background and settings */}
+        {/* Instrument icons with subtle background and settings */}
         <Box sx={{
           bgcolor: 'rgba(255,255,255,0.10)',
           borderRadius: 3,
@@ -140,10 +140,10 @@ export const TopBar: React.FC<TopBarProps> = ({
           mr: { xs: 1, sm: 2 },
         }}>
           <Stack direction="row" spacing={{ xs: 0.5, sm: 1 }} alignItems="center" flexWrap="wrap">
-            {(['kick', 'snare', 'hihat', 'tom', 'cymbal'] as DrumType[]).map((drum) => (
-              <Tooltip key={drum} title={drum.charAt(0).toUpperCase() + drum.slice(1)}>
+            {(['kick', 'snare', 'hihat', 'tom', 'cymbal'] as InstrumentType[]).map((instrument) => (
+              <Tooltip key={instrument} title={instrument.charAt(0).toUpperCase() + instrument.slice(1)}>
                 <IconButton
-                  onClick={() => handleDrumIconClick(drum)}
+                  onClick={() => handleInstrumentIconClick(instrument)}
                   size={window.innerWidth < 600 ? 'medium' : 'large'}
                   sx={{
                     mx: { xs: 0, sm: 0.5 },
@@ -152,26 +152,26 @@ export const TopBar: React.FC<TopBarProps> = ({
                     boxShadow: undefined,
                     transition: 'box-shadow 0.2s',
                   }}
-                  aria-pressed={activeDrums.includes(drum)}
+                  aria-pressed={activeInstruments.includes(instrument)}
                 >
-                  {getDrumAvatar(drum, activeDrums.includes(drum))}
+                  {getInstrumentAvatar(instrument, activeInstruments.includes(instrument))}
                 </IconButton>
               </Tooltip>
             ))}
-            {/* Drum Settings Modal */}
-            {selectedDrum && (
+            {/* Instrument Settings Modal */}
+            {selectedInstrument && (
               <DrumSettingsModal
                 open={modalOpen}
-                drum={selectedDrum}
-                initialEnabled={drumSettings[selectedDrum]?.enabled ?? true}
-                initialSpectrumTemplate={drumSettings[selectedDrum]?.spectrumTemplate}
-                initialSensitivity={drumSettings[selectedDrum]?.sensitivity ?? 0.85}
+                drum={selectedInstrument}
+                initialEnabled={instrumentSettings[selectedInstrument]?.enabled ?? true}
+                initialSpectrumTemplate={instrumentSettings[selectedInstrument]?.spectrumTemplate}
+                initialSensitivity={instrumentSettings[selectedInstrument]?.sensitivity ?? 0.85}
                 onClose={handleModalClose}
-                initialAmplitudeThreshold={drumSettings[selectedDrum]?.amplitudeThreshold ?? 0.1}
+                initialAmplitudeThreshold={instrumentSettings[selectedInstrument]?.amplitudeThreshold ?? 0.1}
                 onSave={handleModalSave}
               />
             )}
-            {/* Settings icon inside drum group */}
+            {/* Settings icon inside instrument group */}
             <Tooltip title="Settings">
               <IconButton color="inherit" onClick={onSettings} size={window.innerWidth < 600 ? 'medium' : 'large'}>
                 <SettingsIcon />
@@ -211,7 +211,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             ))}
           </Stack>
         </Box>
-        {/* Settings icon on right removed; now only in drum group */}
+        {/* Settings icon on right removed; now only in instrument group */}
       </Toolbar>
     </AppBar>
   );

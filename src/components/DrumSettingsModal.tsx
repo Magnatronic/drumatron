@@ -76,7 +76,7 @@ const DrumSettingsModal: React.FC<DrumSettingsModalProps> = ({
   const [liveFeedback, setLiveFeedback] = useState('');
   // For spectrum visualization
   const [liveSpectrum, setLiveSpectrum] = useState<Uint8Array | null>(null);
-  const [livePeakIdx, setLivePeakIdx] = useState<number | null>(null);
+  // const [livePeakIdx, setLivePeakIdx] = useState<number | null>(null); // Unused
   const [trainProgress, setTrainProgress] = useState(0);
   const trainDuration = 3000; // ms
   const trainTimerRef = useRef<number | null>(null);

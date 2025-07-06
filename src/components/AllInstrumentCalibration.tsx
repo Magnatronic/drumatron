@@ -1,3 +1,5 @@
+// Renamed from AllDrumCalibration.tsx to AllInstrumentCalibration.tsx
+// Instrument-agnostic calibration component
 import { Box, LinearProgress, Typography, Button } from '@mui/material';
 import React, { useRef, useState } from 'react';
 import type { InstrumentType } from './InstrumentVisualizer';
@@ -23,7 +25,6 @@ export interface AllInstrumentCalibrationProps {
   onCalibrate: (noiseFloors: Record<InstrumentType, number>) => void;
   calibrateButtonId?: string;
 }
-
 
 export const AllInstrumentCalibration: React.FC<AllInstrumentCalibrationProps> = ({ instruments, onCalibrate, calibrateButtonId }) => {
   const [calibrating, setCalibrating] = useState(false);
@@ -111,3 +112,5 @@ export const AllInstrumentCalibration: React.FC<AllInstrumentCalibrationProps> =
     </Box>
   );
 };
+
+export default AllInstrumentCalibration;
