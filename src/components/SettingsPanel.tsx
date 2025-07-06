@@ -1,7 +1,7 @@
 import { Box, Typography, FormGroup, FormControlLabel, Switch, Slider } from '@mui/material';
 import React from 'react';
 import type { InstrumentType } from './InstrumentVisualizer';
-// import { PerInstrumentCalibration } from './index';
+import { instrumentConfig, instruments } from './instrumentConfig';
 
 export interface SettingsPanelProps {
   activeInstruments: InstrumentType[];
@@ -20,7 +20,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   // perInstrumentNoise = { kick: 0, snare: 0, hihat: 0, tom: 0, cymbal: 0 },
   // onPerInstrumentCalibrate,
 }) => {
-  const instruments: InstrumentType[] = ['kick', 'snare', 'hihat', 'tom', 'cymbal'];
+  // ...existing code...
 
   return (
     <Box>
@@ -28,19 +28,28 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         Instrument Detection Settings
       </Typography>
       <FormGroup row sx={{ mb: 2 }}>
-        {instruments.map((instrument) => (
-          <FormControlLabel
-            key={instrument}
-            control={
-              <Switch
-                checked={activeInstruments.includes(instrument)}
-                onChange={() => onToggleInstrument(instrument)}
-                color="primary"
-              />
-            }
-            label={instrument.charAt(0).toUpperCase() + instrument.slice(1)}
-          />
-        ))}
+        {instruments.map((instrument) => {
+          const { label, icon: IconComponent, color } = instrumentConfig[instrument];
+          return (
+            <FormControlLabel
+              key={instrument}
+              control={
+                <Switch
+                  checked={activeInstruments.includes(instrument)}
+                  onChange={() => onToggleInstrument(instrument)}
+                  color="primary"
+                  inputProps={{ 'aria-label': label }}
+                />
+              }
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <IconComponent sx={{ color, fontSize: 22 }} />
+                  <span>{label}</span>
+                </Box>
+              }
+            />
+          );
+        })}
       </FormGroup>
       <Box sx={{ mb: 2 }}>
         <Typography gutterBottom>Sensitivity</Typography>

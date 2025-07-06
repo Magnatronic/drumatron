@@ -6,7 +6,7 @@ import { TopBar } from './components/TopBar';
 import type { InstrumentSettings } from './components/TopBar';
 import { useState, useCallback } from 'react';
 import { InstrumentVisualizer } from './components/InstrumentVisualizer';
-import type { InstrumentType } from './components/InstrumentVisualizer';
+import type { InstrumentType } from './components/instrumentConfig';
 import { useInstrumentDetection } from './components/useInstrumentDetection';
 import type { InstrumentMatchScores } from './components/useInstrumentDetection';
 import { SettingsPanel } from './components/SettingsPanel';
@@ -17,26 +17,26 @@ function App() {
   const [matchScores, setMatchScores] = useState<InstrumentMatchScores>({});
   // State for instrument visualizer and settings
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [activeInstruments, setActiveInstruments] = useState<InstrumentType[]>(['kick', 'snare', 'hihat', 'tom', 'cymbal']);
+  const [activeInstruments, setActiveInstruments] = useState<InstrumentType[]>(['drum1', 'drum2', 'drum3', 'drum4', 'drum5']);
   const [sensitivity, setSensitivity] = useState(5);
   const [theme, setTheme] = useState('classic');
   const [lastHit, setLastHit] = useState<InstrumentType | null>(null);
   // (noiseFloor state removed, unused)
   const [perInstrumentNoise, setPerInstrumentNoise] = useState<Record<InstrumentType, number>>({
-    kick: 0,
-    snare: 0,
-    hihat: 0,
-    tom: 0,
-    cymbal: 0,
+    drum1: 0,
+    drum2: 0,
+    drum3: 0,
+    drum4: 0,
+    drum5: 0,
   });
   // Per-instrument settings state
   const [instrumentSettings, setInstrumentSettings] = useState<Partial<Record<InstrumentType, InstrumentSettings>>>(
     {
-      kick: { enabled: true, sensitivity: 0.85 },
-      snare: { enabled: true, sensitivity: 0.85 },
-      hihat: { enabled: true, sensitivity: 0.85 },
-      tom: { enabled: true, sensitivity: 0.85 },
-      cymbal: { enabled: true, sensitivity: 0.85 },
+      drum1: { enabled: true, sensitivity: 0.85 },
+      drum2: { enabled: true, sensitivity: 0.85 },
+      drum3: { enabled: true, sensitivity: 0.85 },
+      drum4: { enabled: true, sensitivity: 0.85 },
+      drum5: { enabled: true, sensitivity: 0.85 },
     }
   );
 

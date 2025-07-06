@@ -2,22 +2,17 @@
 // Instrument-agnostic calibration component
 import { Box, LinearProgress, Typography, Button } from '@mui/material';
 import React, { useRef, useState } from 'react';
-import type { InstrumentType } from './InstrumentVisualizer';
+import type { InstrumentType } from './instrumentConfig';
+import { instrumentConfig } from './instrumentConfig';
 
-const instrumentLabels: Record<InstrumentType, string> = {
-  kick: 'Kick',
-  snare: 'Snare',
-  hihat: 'Hi-Hat',
-  tom: 'Tom',
-  cymbal: 'Cymbal',
-};
+// Labels now from instrumentConfig
 
 const instrumentFrequencyMap: Record<InstrumentType, [number, number]> = {
-  kick: [20, 100],
-  snare: [150, 250],
-  hihat: [5000, 12000],
-  tom: [80, 180],
-  cymbal: [6000, 16000],
+  drum1: [20, 100],
+  drum2: [150, 250],
+  drum3: [5000, 12000],
+  drum4: [80, 180],
+  drum5: [6000, 16000],
 };
 
 export interface AllInstrumentCalibrationProps {
@@ -104,7 +99,7 @@ export const AllInstrumentCalibration: React.FC<AllInstrumentCalibrationProps> =
         <Box>
           {instruments.map((instrument) => (
             <Typography key={instrument} variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-              {instrumentLabels[instrument]}: {(calibrated[instrument] * 100).toFixed(1)}
+              {instrumentConfig[instrument].label}: {(calibrated[instrument] * 100).toFixed(1)}
             </Typography>
           ))}
         </Box>

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 
-export type InstrumentType = 'kick' | 'snare' | 'hihat' | 'tom' | 'cymbal';
+import type { InstrumentType } from './instrumentConfig';
 
 import type { InstrumentMatchScores } from './useInstrumentDetection';
 export interface InstrumentVisualizerProps {
@@ -11,13 +11,7 @@ export interface InstrumentVisualizerProps {
   fullScreen?: boolean;
 }
 
-const instrumentColors: Record<InstrumentType, string> = {
-  kick: '#1976d2',
-  snare: '#d32f2f',
-  hihat: '#fbc02d',
-  tom: '#388e3c',
-  cymbal: '#ffa000',
-};
+import { instrumentConfig } from './instrumentConfig';
 
 export const InstrumentVisualizer: React.FC<InstrumentVisualizerProps> = ({ activeInstruments, lastHit, theme, matchScores, fullScreen }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -77,11 +71,11 @@ export const InstrumentVisualizer: React.FC<InstrumentVisualizerProps> = ({ acti
       // Shadow/highlight for last hit
       if (lastHit === instrument) {
         ctx.save();
-        ctx.shadowColor = instrumentColors[instrument];
+        ctx.shadowColor = instrumentConfig[instrument].color;
         ctx.shadowBlur = 32;
         ctx.beginPath();
         ctx.arc(cx, cy, instrumentRadius + 8, 0, 2 * Math.PI);
-        ctx.fillStyle = instrumentColors[instrument];
+        ctx.fillStyle = instrumentConfig[instrument].color;
         ctx.globalAlpha = 0.25;
         ctx.fill();
         ctx.restore();
@@ -89,7 +83,7 @@ export const InstrumentVisualizer: React.FC<InstrumentVisualizerProps> = ({ acti
       // Instrument circle
       ctx.beginPath();
       ctx.arc(cx, cy, instrumentRadius, 0, 2 * Math.PI);
-      ctx.fillStyle = instrumentColors[instrument];
+      ctx.fillStyle = instrumentConfig[instrument].color;
       ctx.globalAlpha = lastHit === instrument ? 1 : 0.5;
       ctx.fill();
       ctx.globalAlpha = 1;
@@ -99,7 +93,7 @@ export const InstrumentVisualizer: React.FC<InstrumentVisualizerProps> = ({ acti
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(instrument, cx, cy);
+      ctx.fillText(instrumentConfig[instrument].label, cx, cy);
 
       // Match score bar (if present)
       if (matchScores && matchScores[instrument] !== undefined) {

@@ -1,15 +1,7 @@
 import { Box, LinearProgress, Typography, Stack, IconButton } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 import type { InstrumentType } from './InstrumentVisualizer';
-import MusicNoteIcon from '@mui/icons-material/MusicNote';
-
-const instrumentLabels: Record<InstrumentType, string> = {
-  kick: 'Kick',
-  snare: 'Snare',
-  hihat: 'Hi-Hat',
-  tom: 'Tom',
-  cymbal: 'Cymbal',
-};
+import { instrumentConfig } from './instrumentConfig';
 
 export interface PerInstrumentCalibrationProps {
   instruments: InstrumentType[];
@@ -90,32 +82,35 @@ export const PerInstrumentCalibration: React.FC<PerInstrumentCalibrationProps> =
         Per-Instrument Noise Floor Calibration
       </Typography>
       <Stack spacing={2}>
-        {instruments.map((instrument) => (
-          <Box key={instrument} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <MusicNoteIcon fontSize="small" />
-            <Typography sx={{ minWidth: 60 }}>{instrumentLabels[instrument]}</Typography>
-            <LinearProgress
-              variant="determinate"
-              value={Math.min(level * 100 * 2, 100)}
-              sx={{ height: 8, borderRadius: 5, flex: 1, bgcolor: '#eee' }}
-            />
-            <Typography variant="caption" color="text.secondary" sx={{ minWidth: 80 }}>
-              {calibrating === instrument
-                ? 'Calibrating...'
-                : calibrated[instrument] !== undefined
-                ? `Noise: ${(calibrated[instrument] * 100).toFixed(1)}`
-                : 'Not set'}
-            </Typography>
-            <IconButton
-              size="small"
-              onClick={() => handleCalibrate(instrument)}
-              disabled={calibrating !== null}
-              color={calibrating === instrument ? 'primary' : 'default'}
-            >
-              <MusicNoteIcon />
-            </IconButton>
-          </Box>
-        ))}
+        {instruments.map((instrument) => {
+          const { label, icon: IconComponent, color } = instrumentConfig[instrument];
+          return (
+            <Box key={instrument} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <IconComponent sx={{ color, fontSize: 20 }} />
+              <Typography sx={{ minWidth: 60 }}>{label}</Typography>
+              <LinearProgress
+                variant="determinate"
+                value={Math.min(level * 100 * 2, 100)}
+                sx={{ height: 8, borderRadius: 5, flex: 1, bgcolor: '#eee' }}
+              />
+              <Typography variant="caption" color="text.secondary" sx={{ minWidth: 80 }}>
+                {calibrating === instrument
+                  ? 'Calibrating...'
+                  : calibrated[instrument] !== undefined
+                  ? `Noise: ${(calibrated[instrument] * 100).toFixed(1)}`
+                  : 'Not set'}
+              </Typography>
+              <IconButton
+                size="small"
+                onClick={() => handleCalibrate(instrument)}
+                disabled={calibrating !== null}
+                color={calibrating === instrument ? 'primary' : 'default'}
+              >
+                <IconComponent sx={{ color, fontSize: 20 }} />
+              </IconButton>
+            </Box>
+          );
+        })}
       </Stack>
     </Box>
   );

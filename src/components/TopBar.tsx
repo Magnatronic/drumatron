@@ -10,26 +10,33 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { InstrumentType } from './InstrumentVisualizer';
 import InstrumentSettingsModal from './InstrumentSettingsModal';
+import { instrumentConfig, instruments } from './instrumentConfig';
 
-// Drum icon avatar generator for highlight effect (subtle blue highlight)
-const getInstrumentAvatar = (instrument: InstrumentType, active: boolean) => (
-  <Avatar
-    sx={{
-      bgcolor: active ? 'rgba(25, 118, 210, 0.20)' : 'rgba(255,255,255,0.10)', // #1976d2 at 20% opacity
-      color: '#fff',
-      width: 36,
-      height: 36,
-      fontWeight: 700,
-      fontSize: 22,
-      border: active ? '2px solid rgba(25, 118, 210, 0.7)' : undefined,
-      boxShadow: undefined,
-      transition: 'all 0.2s',
-    }}
-    aria-label={instrument.charAt(0).toUpperCase()}
-  >
-    {instrument.charAt(0).toUpperCase()}
-  </Avatar>
-);
+// Instrument icon avatar generator using config
+const getInstrumentAvatar = (instrument: InstrumentType, active: boolean) => {
+  const { icon: IconComponent, color, label } = instrumentConfig[instrument];
+  return (
+    <Avatar
+      sx={{
+        bgcolor: active ? 'rgba(25, 118, 210, 0.20)' : 'rgba(255,255,255,0.10)',
+        color: color,
+        width: 36,
+        height: 36,
+        fontWeight: 700,
+        fontSize: 22,
+        border: active ? `2px solid ${color}` : undefined,
+        boxShadow: undefined,
+        transition: 'all 0.2s',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+      aria-label={label}
+    >
+      <IconComponent sx={{ color, fontSize: 22 }} />
+    </Avatar>
+  );
+};
 
 
 // Theme icon avatar generator for highlight effect
@@ -143,24 +150,27 @@ export const TopBar: React.FC<TopBarProps> = ({
           mr: { xs: 1, sm: 2 },
         }}>
           <Stack direction="row" spacing={{ xs: 0.5, sm: 1 }} alignItems="center" flexWrap="wrap">
-            {(['kick', 'snare', 'hihat', 'tom', 'cymbal'] as InstrumentType[]).map((instrument) => (
-              <Tooltip key={instrument} title={instrument.charAt(0).toUpperCase() + instrument.slice(1)}>
-                <IconButton
-                  onClick={() => handleInstrumentIconClick(instrument)}
-                  size={window.innerWidth < 600 ? 'medium' : 'large'}
-                  sx={{
-                    mx: { xs: 0, sm: 0.5 },
-                    p: { xs: 0.5, sm: 1 },
-                    borderRadius: 2,
-                    boxShadow: undefined,
-                    transition: 'box-shadow 0.2s',
-                  }}
-                  aria-pressed={activeInstruments.includes(instrument)}
-                >
-                  {getInstrumentAvatar(instrument, activeInstruments.includes(instrument))}
-                </IconButton>
-              </Tooltip>
-            ))}
+            {instruments.map((instrument) => {
+              const { label } = instrumentConfig[instrument];
+              return (
+                <Tooltip key={instrument} title={label}>
+                  <IconButton
+                    onClick={() => handleInstrumentIconClick(instrument)}
+                    size={window.innerWidth < 600 ? 'medium' : 'large'}
+                    sx={{
+                      mx: { xs: 0, sm: 0.5 },
+                      p: { xs: 0.5, sm: 1 },
+                      borderRadius: 2,
+                      boxShadow: undefined,
+                      transition: 'box-shadow 0.2s',
+                    }}
+                    aria-pressed={activeInstruments.includes(instrument)}
+                  >
+                    {getInstrumentAvatar(instrument, activeInstruments.includes(instrument))}
+                  </IconButton>
+                </Tooltip>
+              );
+            })}
             {/* Instrument Settings Modal */}
             {selectedInstrument && (
               <InstrumentSettingsModal
