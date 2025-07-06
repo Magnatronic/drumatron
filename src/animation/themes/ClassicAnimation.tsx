@@ -128,7 +128,7 @@ const ClassicBarLayer: React.FC<{
   matchScores?: Partial<Record<InstrumentType, number>>;
   thresholds?: Partial<Record<InstrumentType, number>>;
 }> = ({ matchScores, thresholds }) => {
-  // Only track the last detected instrument
+  // Only track the last detected instrument visually (no detection logic here)
   const [lastInstrument, setLastInstrument] = useState<InstrumentType | null>(null);
 
   useEffect(() => {
