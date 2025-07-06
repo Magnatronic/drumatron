@@ -1,9 +1,11 @@
 
+
 import { spaceTheme } from './SpaceAnimation';
 import { underwaterTheme } from './UnderwaterAnimation';
 import { classicTheme } from './ClassicAnimation';
 
-export type ThemeModule = typeof spaceTheme;
+// Allow overlay property for classicTheme
+export type ThemeModule = typeof spaceTheme & { overlay?: React.FC };
 
 export const themeRegistry: Record<string, ThemeModule> = {
   space: spaceTheme,

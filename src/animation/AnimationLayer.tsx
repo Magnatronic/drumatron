@@ -1,31 +1,33 @@
 import React from 'react';
 import { useAnimation } from './AnimationContext';
-import { instrumentConfig } from '../components/instrumentConfig';
+import { instrumentConfig, instruments } from '../components/instrumentConfig';
 import { themeRegistry } from './themes';
 
-// Placeholder for theme and instrument animation rendering
-export const AnimationLayer: React.FC = () => {
-  const { theme, lastTriggers } = useAnimation();
+// Accepts matchScores and thresholds as props for overlays that use them
+export const AnimationLayer: React.FC<{
+  matchScores?: Partial<Record<string, number>>;
+  instrumentSettings?: Partial<Record<string, { sensitivity: number }>>;
+}> = ({ matchScores, instrumentSettings }) => {
+  const { theme } = useAnimation();
   const themeObj = themeRegistry[theme] || themeRegistry['classic'];
   const Background = themeObj.background;
+  const Overlay = themeObj.overlay;
 
-  // Find the most recent instrument trigger
-  const last = lastTriggers.length > 0 ? lastTriggers[lastTriggers.length - 1] : null;
-  let Effect: React.FC | null = null;
-  if (last) {
-    const slotKey = last.instrument;
-    const type = instrumentConfig[slotKey]?.type;
-    Effect =
-      (themeObj.slotEffects && themeObj.slotEffects[slotKey]) ||
-      (type && themeObj.typeEffects && themeObj.typeEffects[type]) ||
-      themeObj.defaultEffect ||
-      null;
+  // Build per-instrument thresholds from instrumentSettings
+  const thresholds: Partial<Record<string, number>> = {};
+  if (instrumentSettings) {
+    for (const instrument of instruments) {
+      const s = instrumentSettings[instrument];
+      if (s && typeof s.sensitivity === 'number') {
+        thresholds[instrument] = s.sensitivity;
+      }
+    }
   }
 
   return (
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
       <Background />
-      {Effect && <Effect />}
+      {Overlay ? <Overlay matchScores={matchScores} thresholds={thresholds} /> : null}
     </div>
   );
 };

@@ -102,7 +102,7 @@ function AppWithAnimation(props: {
       {/* Main Content: Remove card, use full-page canvas for visualizer */}
       <Box sx={{ position: 'relative', width: '100vw', height: 'calc(100vh - 64px)', minHeight: 0, p: 0, m: 0, overflow: 'hidden' }}>
         {/* Animation Layer (background, effects) - now only covers main content */}
-        <AnimationLayer />
+        <AnimationLayer matchScores={matchScores} instrumentSettings={instrumentSettings} />
         <InstrumentVisualizer activeInstruments={activeInstruments} lastHit={lastHit} theme={theme} matchScores={matchScores} fullScreen />
         <Drawer anchor="right" open={settingsOpen} onClose={() => setSettingsOpen(false)}>
           <Box sx={{ width: 340, p: 3 }} role="presentation">
