@@ -8,7 +8,7 @@ import WavesIcon from '@mui/icons-material/Waves'; // Underwater theme
 import PaletteIcon from '@mui/icons-material/Palette'; // Classic theme
 import SettingsIcon from '@mui/icons-material/Settings';
 
-import type { InstrumentType } from './InstrumentVisualizer';
+import type { InstrumentType } from './instrumentConfig';
 import InstrumentSettingsModal from './InstrumentSettingsModal';
 import { instrumentConfig, instruments } from './instrumentConfig';
 
