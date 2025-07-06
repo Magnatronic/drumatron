@@ -16,7 +16,7 @@ import {
 import { PerInstrumentCalibration } from './index';
 import HearingIcon from '@mui/icons-material/Hearing';
 
-import type { InstrumentType } from './InstrumentVisualizer';
+import type { InstrumentType } from './instrumentConfig';
 
 export interface InstrumentSettingsModalProps {
   open: boolean;
@@ -197,11 +197,11 @@ const InstrumentSettingsModal: React.FC<InstrumentSettingsModalProps> = ({
             <PerInstrumentCalibration
               instruments={[instrument]}
               noiseFloors={{
-                kick: instrument === 'kick' ? noiseFloor : 0,
-                snare: instrument === 'snare' ? noiseFloor : 0,
-                hihat: instrument === 'hihat' ? noiseFloor : 0,
-                tom: instrument === 'tom' ? noiseFloor : 0,
-                cymbal: instrument === 'cymbal' ? noiseFloor : 0,
+                drum1: instrument === 'drum1' ? noiseFloor : 0,
+                drum2: instrument === 'drum2' ? noiseFloor : 0,
+                drum3: instrument === 'drum3' ? noiseFloor : 0,
+                drum4: instrument === 'drum4' ? noiseFloor : 0,
+                drum5: instrument === 'drum5' ? noiseFloor : 0,
               }}
               onCalibrate={(_, noise) => onCalibrateNoiseFloor(noise)}
             />
