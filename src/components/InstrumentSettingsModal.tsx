@@ -13,15 +13,20 @@ import {
   Box,
   CircularProgress
 } from '@mui/material';
+import { PerInstrumentCalibration } from './index';
 import HearingIcon from '@mui/icons-material/Hearing';
+
+import type { InstrumentType } from './InstrumentVisualizer';
 
 export interface InstrumentSettingsModalProps {
   open: boolean;
-  instrument: string;
+  instrument: InstrumentType;
   initialEnabled: boolean;
   initialSpectrumTemplate?: number[];
   initialSensitivity: number;
   initialAmplitudeThreshold?: number;
+  noiseFloor: number;
+  onCalibrateNoiseFloor: (noise: number) => void;
   onClose: () => void;
   onSave: (settings: {
     enabled: boolean;
@@ -37,6 +42,8 @@ const InstrumentSettingsModal: React.FC<InstrumentSettingsModalProps> = ({
   initialSpectrumTemplate,
   initialSensitivity,
   initialAmplitudeThreshold = 0.1,
+  noiseFloor,
+  onCalibrateNoiseFloor,
   onClose,
   onSave,
 }) => {
@@ -183,6 +190,20 @@ const InstrumentSettingsModal: React.FC<InstrumentSettingsModalProps> = ({
               min={0.01}
               max={0.5}
               step={0.01}
+            />
+          </Box>
+          {/* Per-instrument noise floor calibration UI */}
+          <Box mb={2}>
+            <PerInstrumentCalibration
+              instruments={[instrument]}
+              noiseFloors={{
+                kick: instrument === 'kick' ? noiseFloor : 0,
+                snare: instrument === 'snare' ? noiseFloor : 0,
+                hihat: instrument === 'hihat' ? noiseFloor : 0,
+                tom: instrument === 'tom' ? noiseFloor : 0,
+                cymbal: instrument === 'cymbal' ? noiseFloor : 0,
+              }}
+              onCalibrate={(_, noise) => onCalibrateNoiseFloor(noise)}
             />
           </Box>
           <Box mb={2} display="flex" alignItems="center" gap={2}>

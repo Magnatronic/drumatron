@@ -98,6 +98,10 @@ function App() {
         onSettings={() => setSettingsOpen(true)}
         instrumentSettings={instrumentSettings}
         onInstrumentSettingsChange={handleInstrumentSettingsChange}
+        perInstrumentNoise={perInstrumentNoise}
+        onPerInstrumentNoiseChange={(instrument, noise) =>
+          setPerInstrumentNoise((prev) => ({ ...prev, [instrument]: noise }))
+        }
       />
 
       {/* Main Content: Remove card, use full-page canvas for visualizer */}
@@ -115,8 +119,6 @@ function App() {
               instruments={activeInstruments}
               onCalibrate={(noiseFloors) => {
                 setPerInstrumentNoise(noiseFloors);
-                // const avg = Object.values(noiseFloors).reduce((a, b) => a + b, 0) / Object.values(noiseFloors).length;
-                // setNoiseFloor(avg); // Unused, safe to remove
               }}
               calibrateButtonId="calibrate-btn"
             />

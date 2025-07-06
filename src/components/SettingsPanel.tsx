@@ -1,13 +1,15 @@
-
 import { Box, Typography, FormGroup, FormControlLabel, Switch, Slider } from '@mui/material';
 import React from 'react';
 import type { InstrumentType } from './InstrumentVisualizer';
+// import { PerInstrumentCalibration } from './index';
 
 export interface SettingsPanelProps {
   activeInstruments: InstrumentType[];
   onToggleInstrument: (instrument: InstrumentType) => void;
   sensitivity: number;
   onSensitivityChange: (value: number) => void;
+  perInstrumentNoise?: Record<InstrumentType, number>;
+  onPerInstrumentCalibrate?: (instrument: InstrumentType, noiseLevel: number) => void;
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
@@ -15,6 +17,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   onToggleInstrument,
   sensitivity,
   onSensitivityChange,
+  // perInstrumentNoise = { kick: 0, snare: 0, hihat: 0, tom: 0, cymbal: 0 },
+  // onPerInstrumentCalibrate,
 }) => {
   const instruments: InstrumentType[] = ['kick', 'snare', 'hihat', 'tom', 'cymbal'];
 
@@ -50,6 +54,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           valueLabelDisplay="auto"
         />
       </Box>
+      {/* Per-instrument calibration UI moved to InstrumentSettingsModal */}
     </Box>
   );
 };

@@ -9,7 +9,7 @@ import PaletteIcon from '@mui/icons-material/Palette'; // Classic theme
 import SettingsIcon from '@mui/icons-material/Settings';
 
 import type { InstrumentType } from './InstrumentVisualizer';
-import DrumSettingsModal from './DrumSettingsModal';
+import InstrumentSettingsModal from './InstrumentSettingsModal';
 
 // Drum icon avatar generator for highlight effect (subtle blue highlight)
 const getInstrumentAvatar = (instrument: InstrumentType, active: boolean) => (
@@ -80,18 +80,21 @@ export interface TopBarProps {
   onSettings: () => void;
   instrumentSettings?: Partial<Record<InstrumentType, InstrumentSettings>>;
   onInstrumentSettingsChange?: (instrument: InstrumentType, settings: InstrumentSettings) => void;
+  perInstrumentNoise: Record<InstrumentType, number>;
+  onPerInstrumentNoiseChange: (instrument: InstrumentType, noise: number) => void;
 }
 
 
 export const TopBar: React.FC<TopBarProps> = ({
   activeInstruments,
-  // onToggleInstrument, // Unused
   theme,
   onThemeChange,
   themes,
   onSettings,
   instrumentSettings = {},
   onInstrumentSettingsChange,
+  perInstrumentNoise,
+  onPerInstrumentNoiseChange,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedInstrument, setSelectedInstrument] = useState<InstrumentType | null>(null);
@@ -160,15 +163,17 @@ export const TopBar: React.FC<TopBarProps> = ({
             ))}
             {/* Instrument Settings Modal */}
             {selectedInstrument && (
-              <DrumSettingsModal
+              <InstrumentSettingsModal
                 open={modalOpen}
-                drum={selectedInstrument}
+                instrument={selectedInstrument}
                 initialEnabled={instrumentSettings[selectedInstrument]?.enabled ?? true}
                 initialSpectrumTemplate={instrumentSettings[selectedInstrument]?.spectrumTemplate}
                 initialSensitivity={instrumentSettings[selectedInstrument]?.sensitivity ?? 0.85}
                 onClose={handleModalClose}
                 initialAmplitudeThreshold={instrumentSettings[selectedInstrument]?.amplitudeThreshold ?? 0.1}
                 onSave={handleModalSave}
+                noiseFloor={perInstrumentNoise[selectedInstrument] ?? 0}
+                onCalibrateNoiseFloor={(noise) => onPerInstrumentNoiseChange(selectedInstrument, noise)}
               />
             )}
             {/* Settings icon inside instrument group */}
