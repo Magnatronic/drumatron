@@ -15,9 +15,9 @@ import {
 } from '@mui/material';
 import HearingIcon from '@mui/icons-material/Hearing';
 
-export interface DrumSettingsModalProps {
+export interface InstrumentSettingsModalProps {
   open: boolean;
-  drum: string;
+  instrument: string;
   initialEnabled: boolean;
   initialSpectrumTemplate?: number[];
   initialSensitivity: number;
@@ -30,9 +30,9 @@ export interface DrumSettingsModalProps {
     amplitudeThreshold?: number;
   }) => void;
 }
-const DrumSettingsModal: React.FC<DrumSettingsModalProps> = ({
+const InstrumentSettingsModal: React.FC<InstrumentSettingsModalProps> = ({
   open,
-  drum,
+  instrument,
   initialEnabled,
   initialSpectrumTemplate,
   initialSensitivity,
@@ -153,13 +153,13 @@ const DrumSettingsModal: React.FC<DrumSettingsModalProps> = ({
   };
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{`Settings for ${drum.charAt(0).toUpperCase() + drum.slice(1)}`}</DialogTitle>
+      <DialogTitle>{`Settings for ${instrument.charAt(0).toUpperCase() + instrument.slice(1)}`}</DialogTitle>
       <DialogContent>
         <>
           <Box mb={2}>
             <FormControlLabel
               control={<Switch checked={enabled} onChange={e => setEnabled(e.target.checked)} />}
-              label="Enable Drum"
+              label="Enable Instrument"
             />
           </Box>
           {/* No frequency range slider for pattern-based detection */}
@@ -232,4 +232,4 @@ const DrumSettingsModal: React.FC<DrumSettingsModalProps> = ({
   );
 }
 
-export default DrumSettingsModal;
+export default InstrumentSettingsModal;
