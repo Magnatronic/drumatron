@@ -1,6 +1,6 @@
 import { Box, LinearProgress, Typography, Stack, IconButton } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
-import type { InstrumentType } from './InstrumentVisualizer';
+import type { InstrumentType } from './instrumentConfig';
 import { instrumentConfig } from './instrumentConfig';
 
 export interface PerInstrumentCalibrationProps {

@@ -1,6 +1,6 @@
 import { Box, Typography, FormGroup, FormControlLabel, Switch, Slider } from '@mui/material';
 import React from 'react';
-import type { InstrumentType } from './InstrumentVisualizer';
+import type { InstrumentType } from './instrumentConfig';
 import { instrumentConfig, instruments } from './instrumentConfig';
 
 export interface SettingsPanelProps {
