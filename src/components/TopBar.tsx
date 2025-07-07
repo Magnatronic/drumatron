@@ -102,10 +102,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   onInstrumentSettingsChange,
   perInstrumentNoise,
   onPerInstrumentNoiseChange,
-  // TODO: Implement these when we connect detection settings to TopBar
-  // detectionSettings = defaultDetectionSettings,
-  // onDetectionSettingsChange,
-  // currentNoiseFloor = 0,
+  detectionSettings,
+  onDetectionSettingsChange,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedInstrument, setSelectedInstrument] = useState<InstrumentType | null>(null);
@@ -188,6 +186,8 @@ export const TopBar: React.FC<TopBarProps> = ({
                 onSave={handleModalSave}
                 noiseFloor={perInstrumentNoise[selectedInstrument] ?? 0}
                 onCalibrateNoiseFloor={(noise) => onPerInstrumentNoiseChange(selectedInstrument, noise)}
+                detectionSettings={detectionSettings}
+                onDetectionSettingsChange={onDetectionSettingsChange}
               />
             )}
             {/* Settings icon inside instrument group */}

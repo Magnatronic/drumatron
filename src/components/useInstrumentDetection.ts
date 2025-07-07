@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { InstrumentType } from './instrumentConfig';
 import { InstrumentDebounce } from './detectionUtils';
+import type { DetectionSettings } from './detectionTypes';
 
 export type InstrumentMatchScores = Partial<Record<InstrumentType, number>>;
 
@@ -17,6 +18,11 @@ class NoiseFloorManager {
   private readonly maxSamples = 100; // Keep last 100 samples for noise floor
   private readonly minSampleTime = 50; // Only sample every 50ms
   private lastSampleTime = 0;
+  private manualOverride = 0;
+  
+  setManualOverride(value: number): void {
+    this.manualOverride = value;
+  }
   
   addSample(amplitude: number): void {
     const now = Date.now();
@@ -30,6 +36,11 @@ class NoiseFloorManager {
   }
   
   getNoiseFloor(): number {
+    // Use manual override if set
+    if (this.manualOverride > 0) {
+      return this.manualOverride;
+    }
+    
     if (this.samples.length < 10) return 0;
     
     // Use 75th percentile as noise floor (more robust than average)
@@ -53,10 +64,18 @@ export interface UseInstrumentDetectionOptions {
   onInstrumentHit: (instrument: InstrumentType) => void;
   instrumentSettings?: Partial<Record<InstrumentType, InstrumentSettings>>;
   setMatchScores?: (scores: InstrumentMatchScores) => void;
+  detectionSettings?: DetectionSettings;
 }
 
 
-export function useInstrumentDetection({ activeInstruments, sensitivity, onInstrumentHit, instrumentSettings, setMatchScores }: UseInstrumentDetectionOptions) {
+export function useInstrumentDetection({ 
+  activeInstruments, 
+  sensitivity, 
+  onInstrumentHit, 
+  instrumentSettings, 
+  setMatchScores, 
+  detectionSettings 
+}: UseInstrumentDetectionOptions) {
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -78,12 +97,12 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
   const prevScoreRef = useRef<Record<InstrumentType, number>>({ ...initialInstrumentRecord });
   // Track last trigger time for refractory period
   const lastTriggerRef = useRef<Record<InstrumentType, number>>({ ...initialInstrumentRecord });
-  // Per-instrument refractory period (lockout) in ms
-  const refractoryMs = 180;
   
-  // Configuration constants
-  const MIN_SNR = 2.5; // Minimum signal-to-noise ratio
-  const MIN_AMPLITUDE = 30; // Minimum amplitude threshold (0-255)
+  // Use detection settings or fallback to defaults
+  const debounceMs = detectionSettings?.debounceMs ?? 200;
+  const minSnr = detectionSettings?.snrThreshold ?? 2.5;
+  const minAmplitude = detectionSettings?.minAmplitude ?? 30;
+  const manualNoiseFloor = detectionSettings?.manualNoiseFloor ?? 0;
 
   useEffect(() => {
     let cancelled = false;
@@ -111,6 +130,12 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
           
           // Calculate current amplitude for noise floor management
           const currentAmplitude = data.reduce((sum, v) => sum + v, 0) / data.length;
+          
+          // Set manual noise floor override if configured
+          if (manualNoiseFloor > 0) {
+            noiseManagerRef.current.setManualOverride(manualNoiseFloor);
+          }
+          
           noiseManagerRef.current.addSample(currentAmplitude);
           
           // Get noise floor and SNR
@@ -118,7 +143,7 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
           const snr = noiseManagerRef.current.getSignalToNoiseRatio(currentAmplitude);
           
           // Skip processing if amplitude is too low or SNR is poor
-          if (currentAmplitude < MIN_AMPLITUDE || snr < MIN_SNR) {
+          if (currentAmplitude < minAmplitude || snr < minSnr) {
             // Still update match scores for UI feedback, but don't trigger
             const scores: InstrumentMatchScores = {};
             for (const instrument of activeInstruments) {
@@ -136,7 +161,7 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
             const settings = instrumentSettings?.[instrument];
             const template = settings?.spectrumTemplate;
             const instrumentSensitivity = settings?.sensitivity ?? sensitivity;
-            const amplitudeThreshold = settings?.amplitudeThreshold ?? MIN_AMPLITUDE;
+            const amplitudeThreshold = settings?.amplitudeThreshold ?? minAmplitude;
             
             if (!template) continue;
             
@@ -163,7 +188,7 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
             if (
               prevScore <= threshold &&
               dot > threshold &&
-              now - lastTrigger > refractoryMs
+              now - lastTrigger > debounceMs
             ) {
               const allowed = debounceRef.current?.shouldTrigger(instrument);
               // Enhanced logging with noise info
@@ -190,5 +215,5 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
       if (audioContextRef.current) audioContextRef.current.close();
     };
     // eslint-disable-next-line
-  }, [activeInstruments, sensitivity, onInstrumentHit, instrumentSettings]);
+  }, [activeInstruments, sensitivity, onInstrumentHit, instrumentSettings, detectionSettings]);
 }

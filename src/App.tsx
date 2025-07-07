@@ -1,4 +1,4 @@
-import { AllInstrumentCalibration } from './components';
+import { AllInstrumentCalibration } from './components/AllInstrumentCalibration';
 import { AnimationProvider, AnimationLayer } from './animation';
 
 
@@ -69,6 +69,7 @@ function AppWithAnimation(props: {
     perInstrumentNoise,
     instrumentSettings,
     setMatchScores,
+    detectionSettings,
   });
 
   // Handlers for settings
@@ -130,6 +131,8 @@ function AppWithAnimation(props: {
                 setPerInstrumentNoise(noiseFloors);
               }}
               calibrateButtonId="calibrate-btn"
+              detectionSettings={detectionSettings}
+              onDetectionSettingsChange={setDetectionSettings}
             />
           </Box>
         </Drawer>

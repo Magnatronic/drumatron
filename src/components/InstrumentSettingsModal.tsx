@@ -13,10 +13,11 @@ import {
   Box,
   CircularProgress
 } from '@mui/material';
-import { PerInstrumentCalibration } from './index';
+import { UnifiedCalibration } from './UnifiedCalibration';
 import HearingIcon from '@mui/icons-material/Hearing';
 
 import type { InstrumentType } from './instrumentConfig';
+import type { DetectionSettings } from './detectionTypes';
 
 export interface InstrumentSettingsModalProps {
   open: boolean;
@@ -34,6 +35,8 @@ export interface InstrumentSettingsModalProps {
     sensitivity: number;
     amplitudeThreshold?: number;
   }) => void;
+  detectionSettings?: DetectionSettings;
+  onDetectionSettingsChange?: (settings: DetectionSettings) => void;
 }
 const InstrumentSettingsModal: React.FC<InstrumentSettingsModalProps> = ({
   open,
@@ -42,10 +45,12 @@ const InstrumentSettingsModal: React.FC<InstrumentSettingsModalProps> = ({
   initialSpectrumTemplate,
   initialSensitivity,
   initialAmplitudeThreshold = 0.1,
-  noiseFloor,
+  noiseFloor: _noiseFloor, // Renamed to indicate it's not used anymore
   onCalibrateNoiseFloor,
   onClose,
   onSave,
+  detectionSettings,
+  onDetectionSettingsChange,
 }) => {
   // Theme switching for training
   const [wasTheme, setWasTheme] = useState<string | null>(null);
@@ -192,18 +197,20 @@ const InstrumentSettingsModal: React.FC<InstrumentSettingsModalProps> = ({
               step={0.01}
             />
           </Box>
-          {/* Per-instrument noise floor calibration UI */}
+          {/* Unified calibration UI */}
           <Box mb={2}>
-            <PerInstrumentCalibration
+            <UnifiedCalibration
               instruments={[instrument]}
-              noiseFloors={{
-                drum1: instrument === 'drum1' ? noiseFloor : 0,
-                drum2: instrument === 'drum2' ? noiseFloor : 0,
-                drum3: instrument === 'drum3' ? noiseFloor : 0,
-                drum4: instrument === 'drum4' ? noiseFloor : 0,
-                drum5: instrument === 'drum5' ? noiseFloor : 0,
+              onCalibrate={(noiseFloors) => {
+                const noiseLevel = noiseFloors[instrument];
+                if (noiseLevel !== undefined) {
+                  onCalibrateNoiseFloor(noiseLevel);
+                }
               }}
-              onCalibrate={(_, noise) => onCalibrateNoiseFloor(noise)}
+              isModal={true}
+              singleInstrument={instrument}
+              detectionSettings={detectionSettings}
+              onDetectionSettingsChange={onDetectionSettingsChange}
             />
           </Box>
           <Box mb={2} display="flex" alignItems="center" gap={2}>
