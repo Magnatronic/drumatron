@@ -1,7 +1,9 @@
-import { Box, Typography, FormGroup, FormControlLabel, Switch, Slider } from '@mui/material';
+import { Box, Typography, FormGroup, FormControlLabel, Switch, Slider, Divider } from '@mui/material';
 import React from 'react';
 import type { InstrumentType } from './instrumentConfig';
 import { instrumentConfig, instruments } from './instrumentConfig';
+import { DetectionSettingsPanel } from './DetectionSettingsPanel';
+import type { DetectionSettings } from './detectionTypes';
 
 export interface SettingsPanelProps {
   activeInstruments: InstrumentType[];
@@ -10,6 +12,10 @@ export interface SettingsPanelProps {
   onSensitivityChange: (value: number) => void;
   perInstrumentNoise?: Record<InstrumentType, number>;
   onPerInstrumentCalibrate?: (instrument: InstrumentType, noiseLevel: number) => void;
+  // New detection settings
+  detectionSettings?: DetectionSettings;
+  onDetectionSettingsChange?: (settings: DetectionSettings) => void;
+  currentNoiseFloor?: number;
 }
 
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({
@@ -17,6 +23,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   onToggleInstrument,
   sensitivity,
   onSensitivityChange,
+  detectionSettings,
+  onDetectionSettingsChange,
+  currentNoiseFloor = 0,
   // perInstrumentNoise = { kick: 0, snare: 0, hihat: 0, tom: 0, cymbal: 0 },
   // onPerInstrumentCalibrate,
 }) => {
@@ -64,6 +73,18 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
         />
       </Box>
       {/* Per-instrument calibration UI moved to InstrumentSettingsModal */}
+      
+      {/* Detection Settings Panel */}
+      {detectionSettings && onDetectionSettingsChange && (
+        <>
+          <Divider sx={{ my: 3 }} />
+          <DetectionSettingsPanel
+            settings={detectionSettings}
+            onChange={onDetectionSettingsChange}
+            currentNoiseFloor={currentNoiseFloor}
+          />
+        </>
+      )}
     </Box>
   );
 };

@@ -11,6 +11,40 @@ export interface InstrumentSettings {
   amplitudeThreshold?: number;
 }
 
+// New noise management class
+class NoiseFloorManager {
+  private samples: number[] = [];
+  private readonly maxSamples = 100; // Keep last 100 samples for noise floor
+  private readonly minSampleTime = 50; // Only sample every 50ms
+  private lastSampleTime = 0;
+  
+  addSample(amplitude: number): void {
+    const now = Date.now();
+    if (now - this.lastSampleTime < this.minSampleTime) return;
+    
+    this.samples.push(amplitude);
+    if (this.samples.length > this.maxSamples) {
+      this.samples.shift();
+    }
+    this.lastSampleTime = now;
+  }
+  
+  getNoiseFloor(): number {
+    if (this.samples.length < 10) return 0;
+    
+    // Use 75th percentile as noise floor (more robust than average)
+    const sorted = [...this.samples].sort((a, b) => a - b);
+    const percentile75 = Math.floor(sorted.length * 0.75);
+    return sorted[percentile75];
+  }
+  
+  getSignalToNoiseRatio(currentAmplitude: number): number {
+    const noiseFloor = this.getNoiseFloor();
+    if (noiseFloor === 0) return currentAmplitude;
+    return currentAmplitude / noiseFloor;
+  }
+}
+
 export interface UseInstrumentDetectionOptions {
   activeInstruments: InstrumentType[];
   sensitivity: number;
@@ -29,6 +63,9 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
   const animationFrameRef = useRef<number | undefined>(undefined);
   // Modular debounce instance (persistent across renders)
   const debounceRef = useRef<InstrumentDebounce>(new InstrumentDebounce());
+  // Noise floor manager for background noise handling
+  const noiseManagerRef = useRef<NoiseFloorManager>(new NoiseFloorManager());
+  
   // Track previous score for rising edge detection
   // Initialize with all instruments set to 0
   const initialInstrumentRecord = {
@@ -43,6 +80,10 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
   const lastTriggerRef = useRef<Record<InstrumentType, number>>({ ...initialInstrumentRecord });
   // Per-instrument refractory period (lockout) in ms
   const refractoryMs = 180;
+  
+  // Configuration constants
+  const MIN_SNR = 2.5; // Minimum signal-to-noise ratio
+  const MIN_AMPLITUDE = 30; // Minimum amplitude threshold (0-255)
 
   useEffect(() => {
     let cancelled = false;
@@ -67,13 +108,44 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
 
         function detect() {
           analyser.getByteFrequencyData(data);
+          
+          // Calculate current amplitude for noise floor management
+          const currentAmplitude = data.reduce((sum, v) => sum + v, 0) / data.length;
+          noiseManagerRef.current.addSample(currentAmplitude);
+          
+          // Get noise floor and SNR
+          const noiseFloor = noiseManagerRef.current.getNoiseFloor();
+          const snr = noiseManagerRef.current.getSignalToNoiseRatio(currentAmplitude);
+          
+          // Skip processing if amplitude is too low or SNR is poor
+          if (currentAmplitude < MIN_AMPLITUDE || snr < MIN_SNR) {
+            // Still update match scores for UI feedback, but don't trigger
+            const scores: InstrumentMatchScores = {};
+            for (const instrument of activeInstruments) {
+              scores[instrument] = 0;
+            }
+            if (setMatchScores) setMatchScores(scores);
+            animationFrameRef.current = requestAnimationFrame(detect);
+            return;
+          }
+          
           const scores: InstrumentMatchScores = {};
           const now = Date.now();
+          
           for (const instrument of activeInstruments) {
             const settings = instrumentSettings?.[instrument];
             const template = settings?.spectrumTemplate;
             const instrumentSensitivity = settings?.sensitivity ?? sensitivity;
+            const amplitudeThreshold = settings?.amplitudeThreshold ?? MIN_AMPLITUDE;
+            
             if (!template) continue;
+            
+            // Additional amplitude check per instrument
+            if (currentAmplitude < amplitudeThreshold) {
+              scores[instrument] = 0;
+              continue;
+            }
+            
             // Normalize live spectrum
             const liveNorm = Math.sqrt(data.reduce((sum, v) => sum + v * v, 0));
             if (liveNorm === 0) continue;
@@ -94,8 +166,8 @@ export function useInstrumentDetection({ activeInstruments, sensitivity, onInstr
               now - lastTrigger > refractoryMs
             ) {
               const allowed = debounceRef.current?.shouldTrigger(instrument);
-              // eslint-disable-next-line no-console
-              console.log(`[Detection][Simple] instrument: ${instrument}, allowed: ${allowed}, score: ${dot.toFixed(3)}, threshold: ${threshold}, prevScore: ${prevScore.toFixed(3)}, now: ${now}`);
+              // Enhanced logging with noise info
+              console.log(`[Detection][Enhanced] instrument: ${instrument}, allowed: ${allowed}, score: ${dot.toFixed(3)}, threshold: ${threshold}, prevScore: ${prevScore.toFixed(3)}, amplitude: ${currentAmplitude.toFixed(1)}, SNR: ${snr.toFixed(2)}, noiseFloor: ${noiseFloor.toFixed(1)}`);
               if (allowed) {
                 onInstrumentHit(instrument);
                 lastTriggerRef.current[instrument] = now;

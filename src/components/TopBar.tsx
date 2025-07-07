@@ -12,6 +12,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import type { InstrumentType } from './instrumentConfig';
 import InstrumentSettingsModal from './InstrumentSettingsModal';
 import { instrumentConfig, instruments } from './instrumentConfig';
+import type { InstrumentSettings, DetectionSettings } from './detectionTypes';
+// import { defaultDetectionSettings } from './detectionTypes'; // TODO: Use when implementing detection settings
 
 // Instrument icon avatar generator using config
 const getInstrumentAvatar = (instrument: InstrumentType, active: boolean) => {
@@ -72,13 +74,6 @@ const getThemeAvatar = (theme: string, active: boolean) => {
   );
 };
 
-export type InstrumentSettings = {
-  enabled: boolean;
-  spectrumTemplate?: number[]; // normalized average spectrum
-  sensitivity: number; // similarity threshold (0.7–0.99)
-  amplitudeThreshold?: number; // minimum amplitude (RMS) required
-};
-
 export interface TopBarProps {
   activeInstruments: InstrumentType[];
   onToggleInstrument: (instrument: InstrumentType) => void;
@@ -90,6 +85,10 @@ export interface TopBarProps {
   onInstrumentSettingsChange?: (instrument: InstrumentType, settings: InstrumentSettings) => void;
   perInstrumentNoise: Record<InstrumentType, number>;
   onPerInstrumentNoiseChange: (instrument: InstrumentType, noise: number) => void;
+  // New detection settings
+  detectionSettings?: DetectionSettings;
+  onDetectionSettingsChange?: (settings: DetectionSettings) => void;
+  currentNoiseFloor?: number; // For display purposes
 }
 
 
@@ -103,6 +102,10 @@ export const TopBar: React.FC<TopBarProps> = ({
   onInstrumentSettingsChange,
   perInstrumentNoise,
   onPerInstrumentNoiseChange,
+  // TODO: Implement these when we connect detection settings to TopBar
+  // detectionSettings = defaultDetectionSettings,
+  // onDetectionSettingsChange,
+  // currentNoiseFloor = 0,
 }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedInstrument, setSelectedInstrument] = useState<InstrumentType | null>(null);

@@ -4,7 +4,8 @@ import { AnimationProvider, AnimationLayer } from './animation';
 
 import { Box, CssBaseline, Drawer } from '@mui/material';
 import { TopBar } from './components/TopBar';
-import type { InstrumentSettings } from './components/TopBar';
+import type { InstrumentSettings, DetectionSettings } from './components/detectionTypes';
+import { defaultDetectionSettings } from './components/detectionTypes';
 import { useState, useCallback } from 'react';
 import { useAnimation } from './animation';
 import { InstrumentVisualizer } from './components/InstrumentVisualizer';
@@ -27,6 +28,10 @@ function AppWithAnimation(props: {
   setPerInstrumentNoise: React.Dispatch<React.SetStateAction<Record<InstrumentType, number>>>;
   instrumentSettings: Partial<Record<InstrumentType, InstrumentSettings>>;
   setInstrumentSettings: React.Dispatch<React.SetStateAction<Partial<Record<InstrumentType, InstrumentSettings>>>>;
+  detectionSettings: DetectionSettings;
+  setDetectionSettings: React.Dispatch<React.SetStateAction<DetectionSettings>>;
+  currentNoiseFloor: number;
+  setCurrentNoiseFloor: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const {
     activeInstruments,
@@ -39,6 +44,10 @@ function AppWithAnimation(props: {
     setPerInstrumentNoise,
     instrumentSettings,
     setInstrumentSettings,
+    detectionSettings,
+    setDetectionSettings,
+    currentNoiseFloor,
+    // setCurrentNoiseFloor, // TODO: Use this when we implement noise floor updates from detection
   } = props;
   const [matchScores, setMatchScores] = useState<InstrumentMatchScores>({});
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -111,6 +120,9 @@ function AppWithAnimation(props: {
               onToggleInstrument={handleToggleInstrument}
               sensitivity={sensitivity}
               onSensitivityChange={setSensitivity}
+              detectionSettings={detectionSettings}
+              onDetectionSettingsChange={setDetectionSettings}
+              currentNoiseFloor={currentNoiseFloor}
             />
             <AllInstrumentCalibration
               instruments={activeInstruments}
@@ -147,6 +159,10 @@ function App() {
       drum5: { enabled: true, sensitivity: 0.85 },
     }
   );
+  
+  // New detection settings state
+  const [detectionSettings, setDetectionSettings] = useState<DetectionSettings>(defaultDetectionSettings);
+  const [currentNoiseFloor, setCurrentNoiseFloor] = useState(0);
 
   return (
     <AnimationProvider theme={theme} setTheme={setTheme}>
@@ -161,6 +177,10 @@ function App() {
         setPerInstrumentNoise={setPerInstrumentNoise}
         instrumentSettings={instrumentSettings}
         setInstrumentSettings={setInstrumentSettings}
+        detectionSettings={detectionSettings}
+        setDetectionSettings={setDetectionSettings}
+        currentNoiseFloor={currentNoiseFloor}
+        setCurrentNoiseFloor={setCurrentNoiseFloor}
       />
     </AnimationProvider>
   );
