@@ -1,12 +1,13 @@
 import React from 'react';
 import { useAnimation } from './AnimationContext';
-import { instrumentConfig, instruments } from '../components/instrumentConfig';
+import { instruments } from '../components/instrumentConfig';
+import type { InstrumentType } from '../components/instrumentConfig';
 import { themeRegistry } from './themes';
 
 // Accepts matchScores and thresholds as props for overlays that use them
 export const AnimationLayer: React.FC<{
-  matchScores?: Partial<Record<string, number>>;
-  instrumentSettings?: Partial<Record<string, { sensitivity: number }>>;
+  matchScores?: Partial<Record<InstrumentType, number>>;
+  instrumentSettings?: Partial<Record<InstrumentType, { sensitivity: number }>>;
 }> = ({ matchScores, instrumentSettings }) => {
   const { theme } = useAnimation();
   const themeObj = themeRegistry[theme] || themeRegistry['classic'];
@@ -14,7 +15,7 @@ export const AnimationLayer: React.FC<{
   const Overlay = themeObj.overlay;
 
   // Build per-instrument thresholds from instrumentSettings
-  const thresholds: Partial<Record<string, number>> = {};
+  const thresholds: Partial<Record<InstrumentType, number>> = {};
   if (instrumentSettings) {
     for (const instrument of instruments) {
       const s = instrumentSettings[instrument];
