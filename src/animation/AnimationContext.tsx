@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useRef, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import type { ReactNode } from 'react';
 import type { InstrumentType } from '../components/instrumentConfig';
 
 export interface AnimationTrigger {
